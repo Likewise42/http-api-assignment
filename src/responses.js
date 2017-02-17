@@ -3,24 +3,7 @@ const fs = require('fs');
 const index = fs.readFileSync(`${__dirname}/../client/client.html`);
 const style = fs.readFileSync(`${__dirname}/../client/style.css`);
 
-const respond = (request, response, status, content, type) => {
-  response.writeHead(status, { 'Content-Type': type });
-
-  console.log(type);
-  
-
-  if (type === 'text/xml') {
-    content = convertJSONtoXML(content, status);
-  }else {
-    content = JSON.stringify(content);
-  } 
-
-  response.write(content);
-
-  response.end();
-};
-
-const convertJSONtoXML = (json, status) => {
+const convertJSONtoXML = (json) => {
   let xml = '<response>';
   xml = `${xml} <msg>${json.msg}</msg>`;
   xml = `${xml} <id>${json.id}</id>`;
@@ -31,20 +14,38 @@ const convertJSONtoXML = (json, status) => {
   return xml;
 };
 
+const respond = (request, response, status, content, type) => {
+  response.writeHead(status, { 'Content-Type': type });
+
+  console.log(type);
+
+  let cont = content;
+
+  if (type === 'text/xml') {
+    cont = convertJSONtoXML(content, status);
+  } else {
+    cont = JSON.stringify(content);
+  }
+
+  response.write(cont);
+
+  response.end();
+};
+
 const getIndex = (request, response) => {
-  response.writeHead(200, {'Content-Type':'text/html'});
-  
+  response.writeHead(200, { 'Content-Type': 'text/html' });
+
   response.write(index);
-  
+
   response.end();
 };
 module.exports.getIndex = getIndex;
 
 const getStyle = (request, response) => {
-  response.writeHead(200, {'Content-Type':'text/css'});
-  
+  response.writeHead(200, { 'Content-Type': 'text/css' });
+
   response.write(style);
-  
+
   response.end();
 };
 module.exports.getStyle = getStyle;
@@ -86,7 +87,7 @@ const notImplemented = (request, response, params, type) => {
 module.exports.notImplemented = notImplemented;
 
 const unauthorized = (request, response, params, type) => {
-  if (params.loggedIn && params.loggedIn === "yes") {
+  if (params.loggedIn && params.loggedIn === 'yes') {
     const responseJSON = {
       msg: 'this request has the required params',
       id: 'unauthorized',
@@ -105,7 +106,7 @@ const unauthorized = (request, response, params, type) => {
 module.exports.unauthorized = unauthorized;
 
 const badRequest = (request, response, params, type) => {
-  if (params.valid && params.valid === "true") {
+  if (params.valid && params.valid === 'true') {
     const responseJSON = {
       msg: 'this request has the required params',
       id: 'badRequest',
